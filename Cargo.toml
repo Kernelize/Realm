@@ -1,0 +1,14 @@
+[package]
+name = "realm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+salvo = { version = "0.68", features = [] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+mlua = { version = "0.9", features = ["lua54", "vendored", "serialize"] }
+anyhow = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1"
