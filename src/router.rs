@@ -1,10 +1,11 @@
-use crate::middleware::basic_auth::{self, Validator};
+use crate::config::Config;
+use crate::db;
+use crate::middleware::basic_auth::Validator;
+use crate::state::AppState;
 use anyhow::Result;
 use salvo::affix;
 use salvo::prelude::*;
-
-#[derive(Debug, Clone)]
-pub struct AppState {}
+use tracing::info;
 
 #[handler]
 async fn hello() -> Result<String> {
@@ -16,9 +17,14 @@ async fn hello_admin() -> Result<String> {
     Ok("Hello, Admin".to_owned())
 }
 
-pub fn route() -> Router {
-    let state = AppState {};
+// Main Router
+pub async fn make_route(config: &Config) -> Router {
     let auth_handler = BasicAuth::new(Validator);
+
+    let db = db::init(config).await.unwrap();
+    info!("Database connection established");
+
+    let state = AppState::new(db);
 
     let router = Router::new()
         .hoop(affix::inject(state))

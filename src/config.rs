@@ -11,17 +11,24 @@ pub struct Config {
     pub port: u32,
     pub workers: u32,
     pub http3: bool,
-    pub database_url: String,
+    pub db_url: String,
+    pub db_user: String,
+    pub db_password: Option<String>,
+    pub db_name: String,
 }
 
 impl Default for Config {
     fn default() -> Self {
+        let current_user = env::var("USER").unwrap_or("hank".to_owned());
         Config {
             host: "127.0.0.1".to_owned(),
             port: 5800,
             workers: 4,
             http3: false,
-            database_url: "".to_owned(), // FIXME: use a default database url
+            db_url: "localhost".to_owned(), // FIXME: use a default database url
+            db_user: current_user.clone(),
+            db_password: None,
+            db_name: current_user,
         }
     }
 }
