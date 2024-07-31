@@ -1,6 +1,7 @@
 use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 use color_eyre::Result;
 use tracing::info;
+use migration::{Migrator, MigratorTrait};
 
 use crate::config::Config;
 
@@ -24,5 +25,8 @@ pub async fn init(config: &Config) -> Result<DatabaseConnection, DbErr> {
     opt.sqlx_logging(true);
 
     info!("Connecting to database at {}", db_url);
-    Database::connect(opt).await
+    let connection = Database::connect(opt).await?;
+
+    Migrator::up(&connection, None).await?;
+    Ok(connection)
 }
