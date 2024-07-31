@@ -9,7 +9,7 @@ pub mod state;
 pub mod utils;
 
 use crate::router::make_route;
-use anyhow::Result;
+use color_eyre::Result;
 use salvo::prelude::*;
 use tokio::signal;
 use tracing::info;
@@ -19,6 +19,7 @@ use tracing_subscriber::EnvFilter;
 async fn main() -> Result<()> {
     let filter = EnvFilter::from_default_env();
     tracing_subscriber::fmt().with_env_filter(filter).with_test_writer().init();
+    color_eyre::install()?;
     // std::env::set_var("RUST_LOG", "trace");
     // tracing_subscriber::fmt::init();
 

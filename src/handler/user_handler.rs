@@ -1,4 +1,4 @@
-use anyhow::Result;
+use color_eyre::Result;
 use salvo::prelude::*;
 
 use crate::models::user::{

@@ -4,35 +4,49 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-salvo = { version = "0.68", features = [
-  "oapi",
-  "anyhow",
-  "websocket",
-  "logging",
-  "basic-auth",
-  "compression",
-  "affix",
-] }
-
-sea-orm = { version = "1.0.0-rc.7", features = [
-  "debug-print",
-  "runtime-tokio",
-  "sqlx-postgres",
-  "macros",
-  "with-uuid",
-  "with-json",
-  "with-chrono",
-] }
-
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 mlua = { version = "0.9", features = ["lua54", "vendored", "serialize"] }
-anyhow = "1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1"
 const_format = "0.2"
 clap = { version = "4", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
-sonyflake = { version = "0.2.0"}
+sonyflake = { version = "0.2.0" }
 argon2 = "0.5"
+color-eyre = "0.6"
+
+[dependencies.salvo]
+version = "0.68"
+features = [
+  "oapi",
+  "eyre",
+  "websocket",
+  "logging",
+  "basic-auth",
+  "compression",
+  "affix",
+]
+
+[dependencies.sea-orm]
+version = "1.0.0-rc.7"
+features = [
+  "runtime-tokio",
+  "sqlx-postgres",
+  "debug-print",
+  "macros",
+  "with-uuid",
+  "with-json",
+  "with-chrono",
+]
+
+[dependencies.sea-orm-migration]
+version = "1.0.0-rc.7"
+features = [
+  # Enable at least one `ASYNC_RUNTIME` and `DATABASE_DRIVER` feature if you want to run migration via CLI.
+  # View the list of supported features at https://www.sea-ql.org/SeaORM/docs/install-and-config/database-and-async-runtime.
+  # e.g.
+  "runtime-tokio", # `ASYNC_RUNTIME` feature
+  "sqlx-postgres", # `DATABASE_DRIVER` feature
+]

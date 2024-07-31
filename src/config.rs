@@ -1,4 +1,4 @@
-use anyhow::Result;
+use color_eyre::Result;
 use mlua::{Lua, Table};
 use serde::{Deserialize, Serialize};
 use std::{env, path::Path};

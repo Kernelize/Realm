@@ -2,7 +2,7 @@ use crate::config::Config;
 use crate::db;
 use crate::middleware::basic_auth::Validator;
 use crate::state::AppState;
-use anyhow::Result;
+use color_eyre::Result;
 use salvo::affix;
 use salvo::prelude::*;
 use tracing::info;

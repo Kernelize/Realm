@@ -1,5 +1,5 @@
-use sea_orm::{Database, DatabaseConnection, DbErr};
-use anyhow::Result;
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
+use color_eyre::Result;
 use tracing::info;
 
 use crate::config::Config;
@@ -20,6 +20,9 @@ pub async fn init(config: &Config) -> Result<DatabaseConnection, DbErr> {
         )
     };
 
+    let mut opt = ConnectOptions::new(&db_url);
+    opt.sqlx_logging(true);
+
     info!("Connecting to database at {}", db_url);
-    Database::connect(&db_url).await
+    Database::connect(opt).await
 }
