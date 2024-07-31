@@ -46,6 +46,10 @@ pub async fn get_config() -> Result<Config> {
     let config = serde_json::to_string(&config)?;
 
     let config: Config = serde_json::from_str(&config)?;
+    if let Some(url) = env::var("DATABASE_URL").ok() {
+        info!("overriding database url with DATABASE_URL");
+        config.db_url = url;
+    }
     info!("using custom config at {:?} :\n{:#?}", config_path, config);
 
     Ok(config)

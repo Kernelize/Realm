@@ -14,9 +14,62 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: hank
+          POSTGRES_PASSWORD: 0528
+          POSTGRES_DB: hank
+        options: >-
+          --health-cmd "pg_isready -U hank"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v4
+
+    - name: Set up cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+
+    - name: Create realm.lua configuration
+      run: |
+        mkdir -p ~/.config/realm
+        echo 'return {
+          host = "127.0.0.1",
+          port = 5800,
+          workers = 4,
+          http3 = false,
+          db_url = "localhost",
+          db_user = "hank",
+          db_password = "0528",
+          db_name = "hank",
+        }' > ~/.config/realm/realm.lua
+
+    - name: Display realm.lua for verification
+      run: cat ~/.config/realm/realm.lua
+
+    - name: Postgres setup
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client
+        PGPASSWORD=0528 psql -h localhost -U hank -d test_db -c "SELECT 1"
+
     - name: Build
       run: cargo build --verbose
+
     - name: Run tests
       run: cargo test --verbose
+      env:
+        DATABASE_URL: postgres://hank:0528@localhost:5432/test_db
+
