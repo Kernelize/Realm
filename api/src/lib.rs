@@ -8,7 +8,6 @@ pub mod router;
 pub mod state;
 pub mod utils;
 
-use crate::router::make_route;
 use color_eyre::Result;
 use salvo::prelude::*;
 use tokio::signal;
@@ -18,10 +17,11 @@ use tracing_subscriber::EnvFilter;
 #[tokio::main]
 pub async fn main() -> Result<()> {
     let filter = EnvFilter::from_default_env();
-    tracing_subscriber::fmt().with_env_filter(filter).with_test_writer().init();
+    tracing_subscriber::fmt()
+        .with_env_filter(filter)
+        .with_test_writer()
+        .init();
     color_eyre::install()?;
-
-
 
     let config = config::get_config().await.unwrap_or_else(|_| {
         info!("failed to read config file, using default instead");
@@ -32,7 +32,9 @@ pub async fn main() -> Result<()> {
         .bind()
         .await;
 
-    let router = Router::with_path("api").push(make_route(&config).await);
+    let router = Router::new()
+        .push(Router::with_path("api").push(router::make_router(&config).await))
+        .push(crate::router::socket_chat::make_router());
 
     // TODO: http3
     let server = Server::new(acceptor);
@@ -59,7 +61,7 @@ mod tests {
     #[tokio::test]
     async fn test_basic_auth() {
         let test_config = Config::default();
-        let service = Service::new(super::make_route(&test_config).await);
+        let service = Service::new(super::make_router(&test_config).await);
 
         let url = format!("http://{}:{}/", test_config.host, test_config.port);
 

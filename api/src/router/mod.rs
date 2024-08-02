@@ -1,3 +1,5 @@
+pub mod socket_chat;
+
 use crate::config::Config;
 use crate::db;
 use crate::middleware::basic_auth::Validator;
@@ -18,7 +20,7 @@ async fn hello_admin() -> Result<String> {
 }
 
 // Main Router
-pub async fn make_route(config: &Config) -> Router {
+pub async fn make_router(config: &Config) -> Router {
     let auth_handler = BasicAuth::new(Validator);
 
     let db = db::init(config).await.unwrap();
@@ -29,6 +31,7 @@ pub async fn make_route(config: &Config) -> Router {
     let router = Router::new()
         .hoop(affix::inject(state))
         .push(Router::with_path("hello").get(hello))
+        .push(socket_chat::make_router())
         .push(
             Router::with_hoop(auth_handler)
                 .path("hello_admin")

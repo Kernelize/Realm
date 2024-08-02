@@ -45,8 +45,8 @@ pub async fn get_config() -> Result<Config> {
     let config: Table = luai.load(&config_content).eval()?;
     let config = serde_json::to_string(&config)?;
 
-    let config: Config = serde_json::from_str(&config)?;
-    if let Some(url) = env::var("DATABASE_URL").ok() {
+    let mut config: Config = serde_json::from_str(&config)?;
+    if let Ok(url) = env::var("DATABASE_URL") {
         info!("overriding database url with DATABASE_URL");
         config.db_url = url;
     }
