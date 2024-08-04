@@ -1,7 +1,7 @@
 pub mod config;
 pub mod db;
 pub mod error;
-pub mod handler;
+pub mod services;
 pub mod middleware;
 pub mod models;
 pub mod router;
@@ -34,7 +34,7 @@ pub async fn main() -> Result<()> {
 
     let router = Router::new()
         .push(Router::with_path("api").push(router::make_router(&config).await))
-        .push(crate::router::socket_chat::make_router());
+        .push(crate::services::socket_chat::make_router());
 
     // TODO: http3
     let server = Server::new(acceptor);
@@ -49,6 +49,7 @@ pub async fn main() -> Result<()> {
     server.serve(router).await;
     Ok(())
 }
+
 
 // Break this test into smaller routes.
 #[cfg(test)]

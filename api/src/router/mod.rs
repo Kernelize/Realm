@@ -1,8 +1,7 @@
-pub mod socket_chat;
-
 use crate::config::Config;
 use crate::db;
 use crate::middleware::basic_auth::Validator;
+use crate::services;
 use crate::state::AppState;
 use color_eyre::Result;
 use salvo::affix;
@@ -31,7 +30,7 @@ pub async fn make_router(config: &Config) -> Router {
     let router = Router::new()
         .hoop(affix::inject(state))
         .push(Router::with_path("hello").get(hello))
-        .push(socket_chat::make_router())
+        .push(services::socket_chat::make_router())
         .push(
             Router::with_hoop(auth_handler)
                 .path("hello_admin")
