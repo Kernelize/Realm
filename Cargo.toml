@@ -7,11 +7,11 @@ edition = "2021"
 [workspace]
 members = [
   ".", 
-  "api", 
+  "realm-api", 
   # "service", 
   "entity", 
   "migration"
 ]
 
 [dependencies]
-realm-api = { path = "api" }
+realm-api = { path = "realm-api" }

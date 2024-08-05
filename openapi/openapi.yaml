@@ -1,0 +1,282 @@
+openapi: 3.1.0
+info:
+  title: Distributed Discord Alternative API
+  description: Backend API for the distributed Discord alternative project
+  version: 1.0.0
+servers:
+  - url: http://discord.sanuki.cn/api/v1
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: http://discord.sanuki.cn/oauth2/authorize
+          tokenUrl: http://discord.sanuki.cn/oauth2/token
+          scopes:
+            read: Read access
+            write: Write access
+            admin: Admin access
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123456"
+        username:
+          type: string
+          example: "user1"
+        email:
+          type: string
+          example: "user1@example.com"
+    Channel:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123456"
+        name:
+          type: string
+          example: "general"
+        description:
+          type: string
+          example: "General discussion channel"
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "654321"
+        content:
+          type: string
+          example: "Hello, world!"
+        senderId:
+          type: string
+          example: "123456"
+        channelId:
+          type: string
+          example: "123456"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-08-05T14:48:00Z"
+  responses:
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Unauthorized"
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Resource not found"
+    BadRequestError:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Bad request"
+paths:
+  /register:
+    post:
+      summary: User registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "user1"
+                password:
+                  type: string
+                  example: "password"
+                email:
+                  type: string
+                  example: "user1@example.com"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+  /login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "user1"
+                password:
+                  type: string
+                  example: "password"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+  /users/{id}:
+    get:
+      summary: Get user information
+      security:
+        - oauth2: [read]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "123456"
+      responses:
+        "200":
+          description: Request successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /channels:
+    post:
+      summary: Create channel
+      security:
+        - oauth2: [write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "general"
+                description:
+                  type: string
+                  example: "General discussion channel"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Channel"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+  /channels/{id}/messages:
+    get:
+      summary: Get channel history
+      security:
+        - oauth2: [read]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "123456"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 0
+      responses:
+        "200":
+          description: Request successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  /channels/{id}/attachments:
+    post:
+      summary: Upload attachment
+      security:
+        - oauth2: [write]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "123456"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    example: "http://discord.sanuki.cn/attachments/123456"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
